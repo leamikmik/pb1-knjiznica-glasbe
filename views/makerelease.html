@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en" class=" izaglqfd idc0_350"><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nalaganje - Glasbena Knjižnica</title>
-    <link rel="stylesheet" href="styling.css">
-</head>
+% rebase("base.html")
 
-<body>
-    <form action="/nalaganje/" method="POST">
+<form action="/nalaganje/" method="POST">
+    <div class="form-container">
         <div class="field">
             <label class="label">naslov izdaje</label>
                 <input class='input' type='text' name='title' placeholder='Title' />
@@ -18,9 +11,7 @@
                 <input class="input" type="text" name="type" paceholder="album" />
         </div>
         <div class="field">
-        <p class="control">
-            <button class="button is-success">
-                ustvari
-            </button>
-        </p>
-    </form>   
+            <input type="submit" value="Ustvari" />
+        </div>
+    </div>
+</form>   

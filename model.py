@@ -169,8 +169,8 @@ class Song:
     @staticmethod
     # Doda novo pesem v tabelo pesmi, primerno premakne ter preimenuje datoteko
     def new_song(release, order_num, title, path, destination):
-        length = int(MP3(path).info.length)
-        os.replace(path, os.path.join(destination, release, str(order_num) + ".mp3"))
+        length = int(mp3.MP3(path).info.length)
+        os.replace(path, os.path.join(destination, str(order_num) + ".mp3"))
         song.insert(release=release, order_num=order_num, title=title, length=length)
 
 

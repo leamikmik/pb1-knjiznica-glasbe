@@ -1,8 +1,7 @@
 import bottle
 import json
 import os
-from functools import wraps
-from model import User, Song, Release, Playlist, user
+from model import User, Song, Release, Playlist
 
 SECRET = "giheihs"
 
@@ -86,7 +85,7 @@ def login_post():
     try:
         user = User.login(username, password)
     except:
-        set_message("user not found")
+        set_message("Napačno uporabniško ime ali geslo.")
         bottle.redirect("/prijava/")
     login_user(user, cookie='login')
 
@@ -102,7 +101,7 @@ def register_post():
     password2=bottle.request.forms.password2
     set_form('register', {'username': username})
     if password1 is not password2:
-        set_message('passwords dont match')
+        set_message('Gesli se ne ujemata.')
         bottle.redirect('/registracija/')
     user=User.register(username, password1)
     login_user(User.login(username, password1), cookie='login')
@@ -181,20 +180,24 @@ def upload_get(r_id):
 def upload_post(r_id):
     _user=logged_in_user()
     release=Release(r_id)
-    # if release.author != _user.id:
-        # set_message("Samo avtor izdaje lahko ji dodaja pesmi.")
-        # bottle.redirect('/')
-    file = bottle.request.files.get('upload')
-    _, ext = os.path.splitext(file.filename)
+    if release.author.id != _user.id:
+        set_message("Samo avtor izdaje lahko ji dodaja pesmi.")
+        bottle.redirect('/')
+    title=bottle.request.forms.title
+    file = bottle.request.files.get('upload', '')
+    filename = file.filename
+    _, ext = os.path.splitext(filename)
     if ext != ".mp3":
         set_message("Dovoljeno je nalaganje samo mp3 datotek.")
         bottle.redirect(f'/nalaganje/{r_id}/')
-    title=bottle.request.forms.title
-    destination=os.path.join("/music/", str(r_id))
-    order_num=len(os.listdir(destination))
-    path=os.path.join("/temp/", str(order_num - 1))
-    file.save(path)
-    Song.new_song(r_id, order_num, title, path, destination)
+    destination=os.path.join("./music/", str(r_id))
+    order_num=len(release.songs)
+    path="./temp"
+    if not os.path.isfile("./temp/" + filename):
+        file.save(path)
+    Song.new_song(r_id, order_num, title, os.path.join(path, filename), destination)
+    set_message("Pesem uspešno naložena.")
+    bottle.redirect(f'/nalaganje/{r_id}/')
 
 @bottle.get('/seznami/')
 @bottle.view('userplaylists.html')
@@ -227,7 +230,7 @@ def add_to_playlist(pid):
     if not _user:
         bottle.redirect('/prijava/')
         set_message("Za sezname predvajanj morate biti prijavljeni.")
-    if _user.id != playlist.owner:
+    if _user.id != playlist.owner.id:
         set_message("Urejate lahko samo svoje sezname predvajanj.")
         bottle.redirect('/')
     query = bottle.request.query.query

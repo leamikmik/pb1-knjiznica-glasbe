@@ -51,13 +51,18 @@
             </div>
         </li>
     </ul>
+
+    <br><br><br><br>
+
     % if msg:
-    <div class="notification">
-        <button class="delete"></button>
-        {{msg}}
+    <div class="notif-container">
+        <div class="notif">
+            {{msg}}
+        </div>
     </div>
+    <br>
     % end
-        
+
     {{!base}}
     
 </body>

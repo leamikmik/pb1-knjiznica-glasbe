@@ -33,6 +33,48 @@ body {
 .navbar li a:hover {
     background-color: #111111;
 }
+.navbar li .notification {
+    display: block;
+    color: rgb(255, 179, 0);
+    text-align: center;
+    padding: 14px 16px;
+    font-weight: bolder;
+    outline: 5px solid rgb(255, 179, 0);
+}
+
+.notif-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+}
+.notif-container .notif {
+    background-color: #212529c7;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 25vw;
+    border-radius: 20px;
+    padding: 1vh;
+    margin: 1vh;
+    align-items: center;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+}
+form .form-container {
+    background-color: #212529c7;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 50vw;
+    border-radius: 20px;
+    padding: 1vh;
+    margin: 1vh;
+    align-items: center;
+    text-align: center;
+}
 
 /* iskalnik */
 .search-bar {
