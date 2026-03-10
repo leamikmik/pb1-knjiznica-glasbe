@@ -159,9 +159,10 @@ def user_info(id):
 @bottle.get('/nalaganje/')
 @bottle.view('makerelease.html')
 def make_release_get():
-    if not logged_in_user():
+    _user = logged_in_user()
+    if not _user:
         bottle.redirect('/prijava/')
-    pass
+    return dict(releases=_user.releases)
 
 @bottle.post('/nalaganje/')
 def make_release_post():
@@ -220,7 +221,7 @@ def make_playlist_post():
 @bottle.view('playlist.html')
 def playlist_view(pid):
     playlist=Playlist(pid)
-    return dict(playlist=playlist)
+    return dict(playlist=playlist, songs=playlist.songs)
     
 @bottle.get('/seznami/dodaj/<pid:int>/')
 @bottle.view('playlistadd.html')

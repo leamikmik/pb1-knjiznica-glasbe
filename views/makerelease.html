@@ -14,4 +14,20 @@
             <input type="submit" value="Ustvari" />
         </div>
     </div>
-</form>   
+</form>
+
+% if releases:
+% for rel in releases:
+<div class="search-results">
+    <div class="result">
+        <div class="title">
+            <a href="/izdaje/{{rel.id}}/">{{rel.title}}</a>
+        </div>
+        <div class="info">
+            Tip: {{rel.type}} <br>
+            Dolžina: {{rel.length // 60}} minut <br>
+            <a href="/nalaganje/{{rel.id}}/">Dodaj pesem</a>
+        </div>
+    </div>
+</div>
+% end

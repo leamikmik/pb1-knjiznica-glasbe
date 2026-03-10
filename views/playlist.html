@@ -1,0 +1,21 @@
+% rebase("base.html")
+
+<div class="search-results">
+    <div class="result">
+        <h1>{{playlist.name}}</h1>
+        <h3>Uporabnik: {{playlist.owner}}</h3>
+    </div>
+    % if songs:
+    % i = 1
+    % for song in songs:
+    <div class="result">
+        <div class="title">
+            {{i}}. {{song.title}}
+        </div>
+        <audio controls>
+            <source src="{{song.location[1:]}}" type="audio/mpeg">
+        </audio>
+    </div>
+    % i += 1
+    % end
+</div>
