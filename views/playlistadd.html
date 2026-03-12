@@ -1,0 +1,38 @@
+% rebase("base.html")
+
+<div class="search-bar">
+    <form action="{{'/seznami/dodaj/' + str(playlist.id) + '/'}}" method="GET">
+        <div class="field">
+            <input class="input" type="text" name="query" placeholder="Vpiši ime pesmi" value="{{query}}">
+            <button class="button is-success">Išči</button>
+        </div>
+    </form>
+</div>
+
+<br><br>
+
+<form>
+<div class="search-results">
+    <button class="button is-success">Dodaj</button>
+    % if results:
+    % for song in results:
+    <div class="result">
+        <div class="title">
+            {{song.title}}
+        </div>
+        <audio controls>
+            <source src="{{song.location[1:]}}" type="audio/mpeg">
+        </audio>
+        <div class="info">
+            Izvajalec: <a href="/uporabniki/{{song.author.id}}/">{{song.author}}</a>
+            <br>
+            Izdaja:<a href="/izdaje/{{song.release}}/">{{song.release_title}}</a>
+            % if logged_in_user() and playlist:
+            <br>
+            Dodajte v seznam predvajanja:
+            <input type="checkbox", name="song", value="{{song.id}}">
+        </div>
+    </div>
+    % end
+</div>
+</form>

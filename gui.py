@@ -239,6 +239,10 @@ def add_to_playlist(pid):
         results = Song.search(query)
     else:
         results = None
+    song_to_add = bottle.request.query.song
+    print(song_to_add)
+    if song_to_add:
+        playlist.add_song(song_to_add)
     return dict(query=query, results=results, playlist=playlist)
     
 

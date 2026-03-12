@@ -45,6 +45,7 @@ class Table:
         Vnos oblike insert(column1 = val1, calumn2 = val2, ...)
         """
         if not set(values.keys()).issubset(self.columns):
+            print(f'columns: {self.columns}')
             raise ValueError("Incorrect columns")
         
         q = f"INSERT INTO {self.name} ({",".join(values.keys())}) VALUES ({("?, "*len(values))[:-2]});"
@@ -181,7 +182,7 @@ class Playlist_has_Song(Table):
 
     name = "Playlist_has_Song"
     location = "data/phs.csv"
-    columns = {"playlist_id", "song_id", "order"}
+    columns = {"playlist_id", "song_id", "order_num"}
 
     def setup(self):
         q = """

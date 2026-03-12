@@ -66,7 +66,7 @@ class User:
         q = "SELECT id, name, date_created FROM Playlist WHERE owner = ?"
         res = []
         for id, name, date in conn.execute(q, [self.id]):
-            res.append(Playlist(id, name, self.id, date))
+            res.append(Playlist(id, self.id, name, date))
         return res
 
     @staticmethod
@@ -105,30 +105,6 @@ class User:
         for id, name, date in conn.execute(q, [f"%{query}%"]):
             res.append(User(id, name, date))
         return res
-    
-    # backup verzija ce ne uspem z drugimi metodami
-    def new_release(self, path, destination, title, type):
-        # creates a directory in destination titled by the release id
-        os.chdir(destination)
-        release_id = len(os.listdir())
-        os.mkdir(str(release_id))
-        # insert into release
-        release.insert(author=self.id, title=title, type=type)
-        # checks files to be moved
-        os.chdir(path)
-        song_files = os.listdir()
-        order_num = 0
-        for file in song_files:
-            title, ext = os.path.splitext(file)
-            if ext is not "mp3":
-                raise ValueError("Dopuščeno je nalagati le mp3 datoteke")
-            _, title = title.split(".", 1)
-            length = int(mp3(file).info.length)
-            # insert
-            song.insert(release=release_id, order_num=order_num, title=title, length=length)
-            # moves file, changes name, removes original file
-            os.replace(os.path.join(path,file), os.path.join(destination, release_id, str(order_num) + ".mp3"))
-            order_num += 1
 
 class Song:
     '''
@@ -244,11 +220,12 @@ class Playlist:
 
     def __init__(self, id, owner=None, name=None, date=None):
         if owner is None or name is None or date is None:
-            q = "SELECT owner, name, date FROM playlist WHERE id = ?"
+            q = "SELECT owner, name, date_created FROM playlist WHERE id = ?"
             res = conn.execute(q, [id])
             if res is None:
                 raise ValueError("Playlist not found")
-            owner, name, date = res
+            for r in res:
+                owner, name, date = r
         self.owner = User(owner)
         self.date = date
         self.name = name
@@ -271,26 +248,19 @@ class Playlist:
     @property
     def songs(self):
         if not self._songs:
-            q = "SELECT id, release, order_num, title, length FROM Song s JOIN RIGHT Playlist_Has_Song ps ON s.id = ps.song_id WHERE playlist_id = ? ORDER BY order_num ASC"
-            for id, release, order_num, title, length in conn.execute(q, [self.id]):
-                self._songs.append(Song(id, release, order_num, title, length))
+            q = "SELECT id, release, ps.order_num, s.order_num, title, length FROM Song AS s JOIN Playlist_has_Song AS ps ON (s.id = ps.song_id) WHERE playlist_id = ? ORDER BY ps.order_num ASC"
+            for id, release, p_order_num, s_order_num, title, length in conn.execute(q, [self.id]):
+                self._songs.append(Song(id, release, s_order_num, title, length))
         return self._songs  
 
     def add_song(self, song_id):
         q = "SELECT MAX(order_num) FROM Playlist_has_song WHERE playlist_id = ? GROUP BY playlist_id"
         res = conn.execute(q, [self.id])
-        if res is None:
-            order_num = 0
-        else:
-            order_num = res
-            order_num += 1
+        order_num = 1
+        for r in res:
+            order_num = r + 1
         phs.insert(playlist_id=self.id, song_id=song_id, order_num=order_num)
 
     @staticmethod
     def create(owner, name):
-        playlist.insert(owner=owner, name=name)
-        q = "SELECT MAX(id) FROM Playlist"
-        res = conn.execute(q, [owner])
-        for id in res:
-            p_id = id
-        return p_id
+        return playlist.insert(owner=owner, name=name)
