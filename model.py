@@ -258,7 +258,7 @@ class Playlist:
         res = conn.execute(q, [self.id])
         order_num = 1
         for r in res:
-            order_num = r + 1
+            order_num = r[0] + 1
         phs.insert(playlist_id=self.id, song_id=song_id, order_num=order_num)
 
     @staticmethod

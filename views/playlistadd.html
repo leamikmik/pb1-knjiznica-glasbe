@@ -12,8 +12,10 @@
 <br><br>
 
 <form>
+    <input type="hidden" name="start" value={{True}}>
 <div class="search-results">
     <button class="button is-success">Dodaj</button>
+    % i = 0
     % if results:
     % for song in results:
     <div class="result">
@@ -30,9 +32,13 @@
             % if logged_in_user() and playlist:
             <br>
             Dodajte v seznam predvajanja:
-            <input type="checkbox", name="song", value="{{song.id}}">
+            <input type="checkbox" name="{{str(i)+'song'}}" value="{{song.id}}">
+            % i += 1
+            % end
         </div>
     </div>
     % end
+    % end
+    <input type="hidden" name="{{str(i)+'song'}}" value="stop">
 </div>
 </form>

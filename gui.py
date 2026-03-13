@@ -1,6 +1,7 @@
 import bottle
 import json
 import os
+import datetime
 from model import User, Song, Release, Playlist
 
 SECRET = "giheihs"
@@ -54,6 +55,11 @@ def login_user(user, cookie="None"):
 def logout_user():
     del_cookie('user')
     bottle.redirect('/')
+
+def epoch_to_str(epoch):
+    date = datetime.datetime.fromtimestamp(epoch)
+    yr, mn, d = str(date)[:-9].split("-")
+    return f"{d}/{mn}/{yr}"
 
 @bottle.get('/static/<file:path>')
 def static(file):
@@ -154,7 +160,8 @@ def release_songs(id):
 def user_info(id):
     user = User(id)
     releases = user.releases
-    return dict(releases=releases, _user=user)
+    date = epoch_to_str(user.date)
+    return dict(releases=releases, _user=user, date=date)
 
 @bottle.get('/nalaganje/')
 @bottle.view('makerelease.html')
@@ -239,10 +246,20 @@ def add_to_playlist(pid):
         results = Song.search(query)
     else:
         results = None
-    song_to_add = bottle.request.query.song
-    print(song_to_add)
-    if song_to_add:
-        playlist.add_song(song_to_add)
+    if bottle.request.query.get(f"start", ""):
+        i = 0
+        failed = []
+        while bottle.request.query.get(f"{i}song", "") != "stop":
+            song_to_add = bottle.request.query.get(f"{i}song", "")
+            if song_to_add:
+                # ta shit ne dela, zmeraj ga proba addat, tudi z if song(song_to_add) not in playlist.songs idk whats up
+                try:
+                    playlist.add_song(song_to_add)
+                except:
+                    failed.append(song_to_add)
+            i += 1
+        if failed:
+            set_message(f"Naslednje pesmi so že v seznamu: {[Song(sid).title for sid in failed]}")
     return dict(query=query, results=results, playlist=playlist)
     
 
