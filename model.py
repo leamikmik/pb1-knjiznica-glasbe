@@ -81,6 +81,7 @@ class User:
             return User(id)
         else:
             raise AuthError("Incorrect password")
+    
     @staticmethod
     # Vpise novega uporabnika, ce ta ne obstaja
     def register(name, inp_pass):
@@ -98,7 +99,7 @@ class User:
         return bcrypt.hashpw(passw.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
     @staticmethod
-    # Poišče uporabnike z podnizom v imenu 
+    # Poišče uporabnike s podnizom v imenu 
     def search(query):
         q = "SELECT id, name, date_created FROM User WHERE name LIKE ?"
         res = []
@@ -134,7 +135,7 @@ class Song:
         return self.title
 
     @staticmethod
-    # Poišče pesmi z podnizom
+    # Poišče pesmi s podnizom
     def search(query):
         q = "SELECT id, order_num, release, title, length FROM Song WHERE title LIKE ?"
         res = []
@@ -193,7 +194,7 @@ class Release:
         return self._length
 
     @staticmethod
-    # Poišče izdaje z podnizom
+    # Poišče izdaje s podnizom
     def search(query, qtype):
         q = "SELECT id, author, title, type, date_released FROM Release WHERE title LIKE ? AND type = ?"
         res = []
@@ -252,7 +253,14 @@ class Playlist:
             for id, release, p_order_num, s_order_num, title, length in conn.execute(q, [self.id]):
                 self._songs.append(Song(id, release, s_order_num, title, length))
         return self._songs  
+    
+    @property
+    # idji pesmi v seznamu
+    def songs_id(self):
+        songs = self.songs
+        return [s.id for s in songs]
 
+    # Doda pesem v seznam
     def add_song(self, song_id):
         q = "SELECT MAX(order_num) FROM Playlist_has_song WHERE playlist_id = ? GROUP BY playlist_id"
         res = conn.execute(q, [self.id])
@@ -262,5 +270,6 @@ class Playlist:
         phs.insert(playlist_id=self.id, song_id=song_id, order_num=order_num)
 
     @staticmethod
+    # Ustvari nov seznam
     def create(owner, name):
         return playlist.insert(owner=owner, name=name)
