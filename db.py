@@ -13,10 +13,14 @@ class Table:
         """
         Ponastavi tabelo
         """
-        print(f"Setting up {self.name}")
-        self.drop()
-        self.conn.execute(q)
-        self.import_data()
+        q_ = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.name}'"
+        res = self.conn.execute(q_).fetchone()
+
+        if res is None:
+            print(f"Setting up {self.name}")
+            self.drop()
+            self.conn.execute(q)
+            self.import_data()
 
     def __init__(self, conn):
         self.conn = conn
@@ -25,7 +29,7 @@ class Table:
         """
         Prebere in vnese začetne podatke
         """
-        with open(self.location) as f:
+        with open(self.location, encoding="utf-8") as f:
             data = csv.reader(f)
             columns = next(data)
             for row in data:

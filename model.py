@@ -210,7 +210,12 @@ class Release:
         res = conn.execute(q)
         for id, _ in res:
             r_id = id
-        os.mkdir(os.path.join(path, str(r_id)))
+        folder = os.path.join(path, str(r_id))
+        try:
+            os.mkdir(folder)
+        except FileExistsError:
+            for file in os.listdir(folder):
+                os.remove(os.path.join(folder, file))
         return r_id
 
 

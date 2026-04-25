@@ -48,7 +48,7 @@ def logged_in_user():
     uid=bottle.request.get_cookie('user', secret=SECRET)
     try:
         user = User(uid)
-    except:
+    except ValueError:
         return False
     return user
 
@@ -127,11 +127,11 @@ def register_post():
         set_message("Prosim, vnesite uporabniško ime in geslo.")
         bottle.redirect("/registracija/")
     set_form('register', {'username': username})
-    if password1 is not password2:
+    if password1 != password2:
         set_message('Gesli se ne ujemata.')
         bottle.redirect('/registracija/')
     user=User.register(username, password1)
-    login_user(User.login(username, password1), cookie='login')
+    login_user(user, cookie='login')
 
 @bottle.get('/odjava/')
 def odjava():
@@ -145,7 +145,7 @@ def song_search():
     if query:
         results = Song.search(query)
     else:
-        results = None
+        results = Song.search("")
     return dict(query=query, results=results)
 
 # Brskalnik uporabnikov
@@ -156,7 +156,7 @@ def user_search():
     if query:
         results = User.search(query)
     else:
-        results = None
+        results = User.search("")
     return dict(query=query, results=results)
 
 # Brskalnik izdaj
@@ -169,7 +169,9 @@ def release_search():
         results.extend(Release.search(query, "single"))
         results.extend(Release.search(query, "ep"))
     else:
-        results = None
+        results = Release.search("", "album")
+        results.extend(Release.search("", "single"))
+        results.extend(Release.search("", "ep"))
     return dict(query=query, results=results)
 
 # Posamezna izdaja
@@ -218,7 +220,7 @@ def upload_post(r_id):
     release=Release(r_id)
     if release.author.id != _user.id:
         set_message("Samo avtor izdaje lahko ji dodaja pesmi.")
-        bottle.redirect('/')
+        bottle.redirect('/')   
     title=bottle.request.forms.title
     file = bottle.request.files.get('upload', '')
     filename = file.filename
@@ -226,10 +228,12 @@ def upload_post(r_id):
     if ext != ".mp3":
         set_message("Dovoljeno je nalaganje samo mp3 datotek.")
         bottle.redirect(f'/nalaganje/{r_id}/')
-    destination=os.path.join("./music/", str(r_id))
+    destination=os.path.join(".", "music", str(r_id))
     order_num=len(release.songs)
-    path="./temp"
-    if not os.path.isfile("./temp/" + filename):
+    if not os.path.isdir(os.path.join(".", "temp")):
+        os.mkdir(os.path.join(".", "temp"))
+    path=os.path.join(".", "temp")
+    if not os.path.isfile(os.path.join(path, filename)):
         file.save(path)
     Song.new_song(r_id, order_num, title, os.path.join(path, filename), destination)
     set_message("Pesem uspešno naložena.")
